@@ -66,12 +66,22 @@ class spin_Spider(Spider):
 		item["component"] = {}
 		item["component"][title] = {"naam":naam,"merk":merk}
 		for data in datalist:
-			tempkeys = data.xpath('//*[starts-with(@class,"techDataCol1")]/text()').extract()
-			tempvalue = data.xpath('//*[starts-with(@class,"techDataCol1")]/text()').extract()
-			print tempvalue
-			if(tempkeys):
-				for i in range(len(tempkeys)):
-					item["component"][title].update({tempkeys[i]:tempvalue[i]})
+			keys = data.xpath('//*[starts-with(@class,"techDataCol1")]/text()').extract()
+			value = data.xpath('//*[contains(@class,"techDataCol2")]')
+			if(keys):
+				for i in range(len(keys)):
+					tempvalue = []
+					tempvalue = value[i].xpath('//*[contains(@class,"techDataSubColValue")]/text()').extract()
+					try:
+						item["component"][title].update({keys[i]:tempvalue[1]})	
+						subkeys = value[i].xpath('//*[contains(@class,"techDataSubColDescription")]/text()').extract()
+						subvalues = value.xpath('//*[contains(@class,"techDataSubColValue")]/text()').extract()
+						item["component"][title][keys[i]] = {}
+						for n in range(len(subkeys)):
+							item["component"][title][keys[i]].update({subkeys[n]:subvalues[n]})						
+					except IndexError:
+						item["component"][title].update({keys[i]:tempvalue[0]})	
+						
 		#item.append(itemarray)
 		
 		return item
