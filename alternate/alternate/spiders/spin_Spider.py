@@ -4,7 +4,7 @@ from urlparse import urljoin
 from scrapy.spider import Spider
 from scrapy.selector import Selector
 from alternate.items import AlternateItem
-from scrapy import Request
+from scrapy.http import Request
 import re
 
 class spin_Spider(Spider):
@@ -43,16 +43,14 @@ class spin_Spider(Spider):
                       ]
 	def parse (self,response):
 		
-		products = response.xpath('//*[starts-with(@class,"productLink")]')
+		products = response.xpath('//*[starts-with(@class,"productLink")]/@href').extract()
 		items = []
 		for product in products:
 			item = AlternateItem()
-			link = product.xpath('@href').extract()
-			if link:
-				
-				item['component'] = self.request_parser(link,item)
-				items.append(item)
-				
+			#item['component'] = scrapy.Request(url=link[0], meta={'item': item}, callback=self.parse_item)
+			request = Request(url=product, meta={'item': item}, callback=self.parse_item)
+			item = request
+			items.append(item)
 		return items
 			
 			
@@ -62,31 +60,21 @@ class spin_Spider(Spider):
 		datalist = response.xpath('//*[starts-with(@class,"techData")]')
 		title = datalist.xpath('//*[starts-with(@class,"breadCrumbs")]/span/a/span/text()').extract()
 		title = title[1]
-		name = datalist.xpath('//*[starts-with(@class,"productNameContainer")]/*[starts-with(@itemprop,"name")]/text()').extract()
-		brand = datalist.xpath('//*[starts-with(@class,"productNameContainer")]/*[starts-with(@itemprop,"brand")]/text()').extract()
+		naam = datalist.xpath('//*[starts-with(@class,"productNameContainer")]/*[starts-with(@itemprop,"name")]/text()').extract()
+		merk = datalist.xpath('//*[starts-with(@class,"productNameContainer")]/*[starts-with(@itemprop,"brand")]/text()').extract()
 		
-		print title
-		itemarray ={}
-		itemarray[title] = {}
-		
-		itemarray[title]["name"] = name
-		itemarray[title]["brand"] = brand
+		item["component"] = {}
+		item["component"][title] = {"naam":naam,"merk":merk}
 		for data in datalist:
 			tempkeys = data.xpath('//*[starts-with(@class,"techDataCol1")]/text()').extract()
-			tempvalue = data.xpath('//*[starts-with(@class,"techDataCol2")]/text()').extract()
-			print tempkeys
+			tempvalue = data.xpath('//*[starts-with(@class,"techDataCol1")]/text()').extract()
 			print tempvalue
 			if(tempkeys):
 				for i in range(len(tempkeys)):
-					techdata = {}
-					techdata[tempkeys[i]] = "hoi"
-					itemarray[title] = techdata
-		print itemarray
-		item.append(itemarray)
+					item["component"][title].update({tempkeys[i]:tempvalue[i]})
+		#item.append(itemarray)
+		
 		return item
 	
-	def request_parser(self, link, item):
-		return Request(url=link[0], meta={'item': item}, callback=self.parse_item)
-		
 	
 	
