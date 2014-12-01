@@ -9,4 +9,9 @@
 import scrapy
 
 class AlternateItem(scrapy.Item):
-	component = scrapy.Field()
+	merk = scrapy.Field()
+	model = scrapy.Field()
+	type = scrapy.Field()
+	euro = scrapy.Field()
+	cent = scrapy.Field()
+	
