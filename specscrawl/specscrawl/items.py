@@ -8,7 +8,5 @@
 
 import scrapy
 
-class AlternateItem(scrapy.Item):
-	url = scrapy.Field()
-	euro = scrapy.Field()
-	cent = scrapy.Field()
+class SpecscrawlItem(scrapy.Item):
+    specs = scrapy.Field()

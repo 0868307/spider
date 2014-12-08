@@ -12,5 +12,7 @@ BOT_NAME = 'alternate'
 
 SPIDER_MODULES = ['alternate.spiders']
 NEWSPIDER_MODULE = 'alternate.spiders'
-DOWNLOAD_DELAY = 1
-
+DOWNLOAD_DELAY = 2
+ITEM_PIPELINES = {
+	'alternate.pipelines.AlternatePipeline' : 300,
+}

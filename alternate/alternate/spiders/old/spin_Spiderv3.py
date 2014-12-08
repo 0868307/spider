@@ -59,10 +59,16 @@ class spin_Spider(Spider):
 		for product in products:
 			item = AlternateItem()
 			temp = product.xpath('a/span/span/h2/*[starts-with(@class,"name")]/span/text()').extract()
+			item['site'] = "alternate"
 			item['url'] = product.xpath('a/@href').extract()
-			tempeuro = product.xpath('div/p/*[starts-with(@class,"price right")]/text()').extract()
-			item['euro'] = re.findall(r'\d+', ''.join(tempeuro)
-			tempcent = product.xpath('div/p/span/sup/text()').extract()
-			item['cent'] = re.findall(r'\d+', ''.join(tempcent)
+			item['merk'] = temp[0]
+			temp = temp[1].split(',')
+			
+			item['model'] = temp[0]
+			item['type'] = product.xpath('//*[starts-with(@class,"seoListingHeadline")]/text()').extract()
+			item['euro'] = product.xpath('div/p/*[starts-with(@class,"price right")]/text()').extract()
+			item['euro'] = re.findall(r'\d+', ''.join(item['euro']))
+			item['cent'] = product.xpath('div/p/span/sup/text()').extract()
+			item['cent'] = re.findall(r'\d+', ''.join(item['cent']))
 			items.append(item)			
 		return items
